@@ -62,7 +62,7 @@ for(r in c("CRAN", "Bioconductor")) {
 	l = df$repo == r
 	d = dist(cbind(x[l], y[l]))
 	d = as.matrix(d)
-	df$n_neighbours[l] = apply(d, 1, function(x) sum(x < 0.001))
+	df$n_neighbours[l] = apply(d, 1, function(x) sum(x < 0.01))
 }
 
 df = df[order(df$n_neighbours), ] # put points with higher n_neighbours on top
@@ -80,6 +80,7 @@ p3 = ggplot(df[l_low, ], aes(n_parents, max_heaviness_from_parents, color = log1
 	facet_wrap(vars(repo))
 
 
+lt = load_all_pkg_dep()
 gini = sapply(lt, function(x) {
     v = heaviness(x)[x$which_required]
     gini_index(v)
@@ -98,12 +99,49 @@ p5 = ggplot(df2, aes(x = heaviness, y = gini)) +
     geom_point(aes(heaviness, gini, color = "high"), data = df2[df2$cate == "high", ]) +
     scale_color_manual(name = "Heaviness category", values = heaviness_color) +
     labs(x = "Max heaviness from parents", y = "Gini index") +
-    ggtitle("B) Gini index of heaviness from strong parents") +
+    ggtitle("C) Gini index of heaviness from strong parents") +
     facet_wrap(vars(repo))
     
 
 
-pdf("fig_06.pdf", width = 12, height = 10)
-print(plot_grid(p3, p5, ncol = 1))
+
+
+
+## how dependencies are transmitted from upstream
+
+### global graph analysis
+library(igraph)
+nt_all = data.frame(parents = character(0), children = character(0), heaviness = numeric(0))
+for(package in names(lt)) {
+    tb = parent_dependency(package, fields = c("Depends", "Imports", "LinkingTo"))[, c(1, 2, 4)]
+    nt_all = rbind(nt_all, tb)
+}
+nt_all = unique(nt_all)
+nt_all = nt_all[nt_all$heaviness >= 20, ]
+
+g = graph.edgelist(as.matrix(nt_all[, 1:2]))
+E(g)$heaviness = nt_all[, 3]
+
+leaves = df$package[ df$adjusted_max_heaviness_from_parents >= CUTOFF$adjusted_max_heaviness_from_parents[2] ]
+d = distances(g, V(g), leaves, mode = "out")
+upstream = rownames(d)[apply(d, 1, function(x) any(is.finite(x)))]
+
+g2 = induced_subgraph(g, c(leaves, upstream))
+
+V(g2)$group = ifelse(V(g2)$name %in% leaves, "leaves", "upstream")
+
+
+library(png)
+png = readPNG("upstream.png")
+
+
+pdf("fig_06.pdf", width = 12, height = 14)
+print(plot_grid(p3, 
+    gList(rasterGrob(png, x = unit(1, "cm"), just = "left"), 
+          textGrob("B)", x = unit(1.6, "cm"), y = unit(1, "npc") - unit(0.3, "cm"), just = "top", gp = gpar(fontsize = 13)),
+          pointsGrob(x = unit(0.6, "npc"), y = unit(0.1, "npc"), pch = 16, size = unit(5, "mm"), gp = gpar(col = "#FF9292")),
+          textGrob("Top packages with adjusted MHP >= 60", x = unit(0.6, "npc") + unit(4, "mm"), y = unit(0.1, "npc"), just = "left", gp = gpar(fontsize = 10))
+    ),
+    p5, ncol = 1))
 dev.off()
 

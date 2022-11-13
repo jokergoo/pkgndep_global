@@ -4,6 +4,7 @@ library(ggplot2)
 library(ggrepel)
 library(GetoptLong)
 library(pkgndep)
+library(latex2exp)
 
 df = load_pkg_stat_snapshot()
 
@@ -60,7 +61,7 @@ p1 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   geom_linerange(aes(x = x, ymin = 0, ymax = v)) +
   geom_text_repel(box.padding = 0.5, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "MCoHP parents", y = "Number of child packages having the parent pair") +
-  ggtitle(qq("A) @{sum(tb)} Bioconductor packages"))
+  ggtitle(qq("A) For @{sum(tb)} Bioconductor packages"))
 
 
 pair = do.call(rbind, strsplit(pair, ","))
@@ -89,7 +90,7 @@ p2 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   geom_linerange(aes(x = x, ymin = 0, ymax = v)) +
   geom_text_repel(box.padding = 0.5, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "Members in the MCoHP parents", y = "Number of child packages having the co-parent") +
-  ggtitle(qq("B) @{sum(tb)/2} Bioconductor packages"))
+  ggtitle(qq("B) For @{sum(tb)/2} Bioconductor packages"))
 
 #### exclude
 
@@ -113,7 +114,7 @@ p3 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   geom_linerange(aes(x = x, ymin = 0, ymax = v)) +
   geom_text_repel(box.padding = 0.25, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "MCoHP parents", y = "Number of child packages having the parent pair") +
-  ggtitle(qq("C) @{sum(tb)} Bioconductor packages,\nwhere @{length(exclude)} annotation-related parent packages are removed."))
+  ggtitle(qq("C) For @{sum(tb)} Bioconductor packages,\nwhere @{length(exclude)} annotation-related parent packages are removed"))
 
 
 pair = do.call(rbind, strsplit(pair, ","))
@@ -143,7 +144,7 @@ p4 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8)) +
   geom_text_repel(box.padding = 0.5, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "Members in the MCoHP parents", y = "Number of child packages having the co-parent") +
-  ggtitle(qq("D) @{sum(tb)/2} Bioconductor packages,\nwhere @{length(exclude)} annotation-related parent packages are removed."))
+  ggtitle(qq("D) For @{sum(tb)/2} Bioconductor packages,\nwhere @{length(exclude)} annotation-related parent packages are removed"))
 
 
 #### CRAN
@@ -166,7 +167,7 @@ p5 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8)) +
   geom_text_repel(box.padding = 0.5, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "MCoHP parents", y = "Number of child packages having the parent pair") +
-  ggtitle(qq("E) @{sum(tb)} CRAN packages"))
+  ggtitle(qq("E) For @{sum(tb)} CRAN packages"))
 
 
 pair = do.call(rbind, strsplit(pair, ","))
@@ -195,13 +196,13 @@ p6 = ggplot(data.frame(x = 1:length(tb), v = as.numeric(tb), labels = labels), a
   geom_linerange(aes(x = x, ymin = 0, ymax = v)) +
   geom_text_repel(box.padding = 0.5, max.overlaps = Inf, direction = "y", hjust = -0.5) +
   labs(x = "Members in the MCoHP parents", y = "Number of child packages having the co-parent") +
-  ggtitle(qq("F) @{sum(tb)/2} CRAN packages"))
+  ggtitle(qq("F) For @{sum(tb)/2} CRAN packages"))
 
 
 
 library(cowplot)
 
-pdf("fig_08.pdf", width = 12, height = 16)
+pdf("fig_08.pdf", width = 12, height = 15)
 p = plot_grid(p1, p2, p3, p4, p5, p6, nrow = 3)
 print(p)
 dev.off()
