@@ -77,7 +77,7 @@ tb1 = table(x)
 
 p2 = ggplot(data.frame(x = x), aes(x = x)) + 
     geom_bar() +
-    labs(x = "Dependency transmission length", y = "Count") +
+    labs(x = "Dependency transmission length", y = "Number of packages") +
     geom_text(data = data.frame(x = as.numeric(names(tb1)), y = as.vector(tb1)), mapping = aes(x = x, y = y, label = y), vjust = -0.5) +
     ggtitle("C) Distribution of dependency transmission length") +
     scale_x_continuous(breaks = 1:7, label = 1:7)
@@ -95,7 +95,7 @@ p3 = ggplot(data.frame(x = log(x), y = log(y)), aes(x = x, y = y)) +
 	geom_point() + geom_abline(intercept = fit$coefficients[1], slope = fit$coefficients[2]) +
 	scale_x_continuous(breaks = log(c(10, 100, 1000)), label = c(10, 100, 1000)) +
 	scale_y_continuous(breaks = log(c(1e-3, 1e-2, 1e-1, 0.5)), label = c(1e-3, 1e-2, 0.1, 0.5)) +
-	labs(x = "Graph components size (X)", y = "Pr(X = x)") +
+	labs(x = "Graph components size (X) (in log scale)", y = "Pr(X = x) (in log scale)") +
 	ggtitle("B) Distribution of graph component sizes")
 
 l = E(g1)$betweenness >= 20
